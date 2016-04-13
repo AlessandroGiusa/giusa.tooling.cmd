@@ -26,5 +26,7 @@ public interface ParameterBean {
   /* nothing to do here
    *
    * framework will work over reflections
+   *
+   * String usage(); // eventually this method will come.
    */
 }
