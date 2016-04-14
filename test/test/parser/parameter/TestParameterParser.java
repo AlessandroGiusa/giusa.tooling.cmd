@@ -18,6 +18,8 @@ package test.parser.parameter;
 import org.junit.Assert;
 import org.junit.Test;
 
+import giusa.software.parser.parameter.MissingParameterException;
+import giusa.software.parser.parameter.ParameterBean;
 import giusa.software.parser.parameter.ParameterParser;
 
 /**
@@ -121,6 +123,52 @@ public final class TestParameterParser {
 
         final boolean parserOption = parser.hasOption("--parser");
         Assert.assertTrue(parserOption);
+    }
+
+    /**
+     * Test the {@link ParameterBean} routine.
+     * @throws MissingParameterException argument is missing
+     */
+    @Test(expected = MissingParameterException.class)
+    public void testParameterBeanClassOptionAvailable()
+            throws MissingParameterException {
+        String[] args = new String[] {
+                "--path=\"C:\\DevTools\"",
+                "-f",
+        };
+
+        final TestBeanClass bean = new TestBeanClass();
+        final ParameterParser parser = new ParameterParser();
+        parser.parse(args);
+        parser.getParameter(bean);
+
+        Assert.assertTrue(bean.isForced());
+        Assert.assertEquals("C:\\DevTools", bean.getPath());
+    }
+
+    /**
+     * Test the {@link ParameterBean} routine. Test option not
+     * available.
+     * @throws MissingParameterException if argument is missing
+     */
+    @Test
+    public void testParameterBeanClassOptionNotAvailable()
+            throws MissingParameterException {
+        String[] args = new String[] {
+                "--path=\"C:\\DevTools\"",
+                "-device=C:",
+                "-g",
+                "--timeout=45"
+        };
+
+        final TestBeanClass bean = new TestBeanClass();
+        final ParameterParser parser = new ParameterParser();
+        parser.parse(args);
+        parser.getParameter(bean);
+
+        Assert.assertFalse(bean.isForced());
+        Assert.assertEquals("C:\\DevTools", bean.getPath());
+        Assert.assertEquals("C:", bean.getDevice());
     }
 
 }

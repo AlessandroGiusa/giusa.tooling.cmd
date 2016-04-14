@@ -259,7 +259,7 @@ public final class ParameterParser {
         } else {
             if (required) {
                 final String errorMessage = String.format(
-                        "the argument %s does not exist as "
+                        "the argument %s does neither exist as "
                                 + "named argument nor in position %s.",
                                     name,
                                     String.valueOf(pos));
@@ -298,7 +298,7 @@ public final class ParameterParser {
         } else {
             if (required) {
                 final String errorMessage = String.format(
-                        "the argument %s does not exist as "
+                        "the argument %s does neither exist as "
                                 + "named argument nor in position %s.",
                                 name,
                                 String.valueOf(pos));
@@ -337,7 +337,7 @@ public final class ParameterParser {
         } else {
             if (required) {
                 final String errorMessage = String.format(
-                        "the argument %s does not exist as "
+                        "the argument %s does neither exist as "
                                 + "named argument nor in position %s.",
                                 name,
                                 String.valueOf(pos));
@@ -376,7 +376,7 @@ public final class ParameterParser {
         } else {
             if (required) {
                 final String errorMessage = String.format(
-                        "the argument %s does not exist as "
+                        "the argument %s does neither exist as "
                                 + "named argument nor in position %s.",
                                 name,
                                 String.valueOf(pos));
@@ -415,7 +415,7 @@ public final class ParameterParser {
         } else {
             if (required) {
                 final String errorMessage = String.format(
-                        "the argument %s does not exist as "
+                        "the argument %s does neither exist as "
                                 + "named argument nor in position %s.",
                                 name,
                                 String.valueOf(pos));
