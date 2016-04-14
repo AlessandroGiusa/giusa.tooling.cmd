@@ -1,8 +1,8 @@
 package test.parser.parameter;
 
-import giusa.software.parser.parameter.Option;
-import giusa.software.parser.parameter.Parameter;
-import giusa.software.parser.parameter.ParameterBean;
+import giusa.parser.parameter.Option;
+import giusa.parser.parameter.Parameter;
+import giusa.parser.parameter.ParameterBean;
 
 /**
  * Test bean class.

@@ -18,9 +18,9 @@ package test.parser.parameter;
 import org.junit.Assert;
 import org.junit.Test;
 
-import giusa.software.parser.parameter.MissingParameterException;
-import giusa.software.parser.parameter.ParameterBean;
-import giusa.software.parser.parameter.ParameterParser;
+import giusa.parser.parameter.MissingParameterException;
+import giusa.parser.parameter.ParameterBean;
+import giusa.parser.parameter.ParameterParser;
 
 /**
  * Test the {@link ParameterParser}.
