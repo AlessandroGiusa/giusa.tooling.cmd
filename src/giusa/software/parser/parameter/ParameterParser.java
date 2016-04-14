@@ -566,6 +566,15 @@ public final class ParameterParser {
         final int position = annotation.position();
         final boolean required = annotation.required();
 
+        if (!required && position >= 0) {
+            final String errMsg = String.format("the method %s has "
+                    + "an parameter %s which is not required but has a position"
+                    + " attached. This is illegal state, since a not required"
+                    + " parameter can not be parsed over position.",
+                            methodName, argName);
+            throw new IllegalStateException(errMsg);
+        }
+
         try {
             if (returnType == String.class) {
                 final String value;
