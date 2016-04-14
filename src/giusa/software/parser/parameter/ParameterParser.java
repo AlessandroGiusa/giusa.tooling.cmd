@@ -446,131 +446,243 @@ public final class ParameterParser {
         for (int i = 0, len = methods.length; i < len; i++) {
             final Method method = methods[i];
             if (method.isAnnotationPresent(Parameter.class)) {
-
-                // get the method name and retrieve the corresponding setter
-                final String methodName = method.getName();
-                if (!methodName.startsWith("get")) {
-                    final String errMsg = String.format("you put %s annotation "
-                            + "on method which is not a getter: %s."
-                            + " Use this annotation on getter since the "
-                            + "name will be extracted "
-                            + "to get the corresponding setter",
-                            Parameter.class.getSimpleName(), methodName);
-                    throw new IllegalArgumentException(errMsg);
-                }
-                final String setterMethodName = "set"
-                        + methodName.substring(methodName.indexOf("get")
-                                + 3, methodName.length());
-                final Class<?> returnType = method.getReturnType();
-                Method setterMethod = null;
-                try {
-                    setterMethod = bean.getClass()
-                            .getMethod(setterMethodName, returnType);
-                } catch (NoSuchMethodException e) {
-                    final String errMsg = String.format(
-                            "Expected Setter method %s missing."
-                                  + "\nPlease implement for each getter the "
-                                  + "corresponding setter!(JavaBeanConvention)",
-                            setterMethodName);
-                    System.err.println(errMsg);
-                    e.printStackTrace();
-                    System.exit(1);
-                } catch (SecurityException e) {
-                    System.err.println("Tried to get the method by reflection "
-                            + "and got missing access permission!");
-                    e.printStackTrace();
-                    System.exit(1);
-                }
-
-                // at this point setterMethod can not be null any more!
-
-                // retrieve parameter informations
-                final Parameter annotation = method
-                        .getAnnotation(Parameter.class);
-                final String argName = annotation.name();
-                final int position = annotation.position();
-                final boolean required = annotation.required();
-
-                try {
-                    if (returnType == String.class) {
-                        final String value;
-                        if (position != MissingParameterException.NO_POSITION) {
-                            value = this.getParameterString(
-                                    argName, position, required);
-                        } else {
-                            value = this.getNamedString(argName);
-                        }
-                        setterMethod.invoke(bean, value);
-                    } else if (returnType == int.class) {
-                        final int value;
-                        if (position != MissingParameterException.NO_POSITION) {
-                            value = this.getParameterInt(
-                                    argName, position, required);
-                        } else {
-                            value = this.getNamedInt(argName);
-                        }
-                        setterMethod.invoke(bean, Integer.valueOf(value));
-
-                    } else if (returnType == long.class) {
-                        final long value;
-                        if (position != MissingParameterException.NO_POSITION) {
-                            value = this.getParameterLong(
-                                    argName, position, required);
-                        } else {
-                            value = this.getNamedLong(argName);
-                        }
-                        setterMethod.invoke(bean, Long.valueOf(value));
-
-                    } else if (returnType == float.class) {
-                        final float value;
-                        if (position != MissingParameterException.NO_POSITION) {
-                            value = this.getParameterFloat(
-                                    argName, position, required);
-                        } else {
-                            value = this.getNamedFloat(argName);
-                        }
-                        setterMethod.invoke(bean, Float.valueOf(value));
-
-                    } else if (returnType == double.class) {
-                        final double value;
-                        if (position != MissingParameterException.NO_POSITION) {
-                            value = this.getParameterDouble(
-                                   argName, position, required);
-                        } else {
-                            value = this.getNamedDouble(argName);
-                        }
-                        setterMethod.invoke(bean, Double.valueOf(value));
-                    }
-
-                } catch (IllegalAccessException e) {
-                    final String errMsg = String.format(
-                            "Tried to invoke %s by reflection "
-                                    + "but got IllegalAccessException",
-                                    setterMethodName);
-                    System.err.println(errMsg);
-                    e.printStackTrace();
-                    System.exit(1);
-                } catch (IllegalArgumentException e) {
-                    final String errMsg = String.format(
-                            "Tried to invoke %s by reflection "
-                                    + "but got IllegalArgumentException,"
-                                    + " seems that the return type of getter "
-                                    + "and setter do not match.",
-                            setterMethodName);
-                    System.err.println(errMsg);
-                    e.printStackTrace();
-                    System.exit(1);
-                } catch (InvocationTargetException e) {
-                    final String errMsg = String.format(
-                            "Tried to invoke %s by reflection "
-                                    + "but got InvocationTargetException",
-                            setterMethodName);
-                    System.err.println(errMsg);
-                    e.printStackTrace();
-                    System.exit(1);
-                }
+                this.processParameterAnnotation(method, bean);
+            } else if (method.isAnnotationPresent(Option.class)) {
+                this.processOptionAnnotation(method, bean);
             }
         }
+    }
+
+    /**
+     * Helper to process the {@link Option} annotation type.
+     *
+     * @param method
+     *            method
+     * @param bean
+     *            bean
+     * @throws IllegalArgumentException
+     *             in case the getter is has not boolean as return type.
+     */
+    private void processOptionAnnotation(final Method method,
+            final ParameterBean bean) {
+        // check the return type
+        final Class<?> returnType = method.getReturnType();
+        if (returnType != boolean.class) {
+            final String errMsg = String.format("wrong return "
+                    + "type on %s. It should be boolean type",
+                    method.getName());
+            throw new IllegalArgumentException(errMsg);
+        }
+        final String methodName = method.getName();
+        final String prefixMethod = "is";
+
+        // construct the setter name
+        final String setterMethodName = "set"
+                + methodName.substring(methodName.indexOf(prefixMethod)
+                        + prefixMethod.length(), methodName.length());
+
+        // get the setter method
+        final Method setterMethod = this.getMethodByReflection(bean,
+                setterMethodName, returnType);
+
+        // fetch details from annotation
+        final Option annotation = method.getAnnotation(Option.class);
+        final String optionName = annotation.name();
+        final boolean optionIsPresent = this.hasOption(optionName);
+        try {
+            setterMethod.invoke(bean, Boolean.valueOf(optionIsPresent));
+        } catch (IllegalAccessException e) {
+            final String errMsg = String.format(
+                    "Tried to invoke %s by reflection "
+                            + "but got IllegalAccessException",
+                            setterMethodName);
+            System.err.println(errMsg);
+            e.printStackTrace();
+            System.exit(1);
+        } catch (IllegalArgumentException e) {
+            final String errMsg = String.format(
+                    "Tried to invoke %s by reflection "
+                            + "but got IllegalArgumentException,"
+                            + " seems that the return type of getter "
+                            + "and setter do not match.",
+                    setterMethodName);
+            System.err.println(errMsg);
+            e.printStackTrace();
+            System.exit(1);
+        } catch (InvocationTargetException e) {
+            final String errMsg = String.format(
+                    "Tried to invoke %s by reflection "
+                            + "but got InvocationTargetException",
+                    setterMethodName);
+            System.err.println(errMsg);
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Helper to process the {@link Parameter} annotation type.
+     * @param method getter method
+     * @param bean bean
+     * @throws MissingParameterException if required but not existent
+     */
+    private void processParameterAnnotation(final Method method,
+            final ParameterBean bean) throws MissingParameterException {
+        final Class<?> returnType = method.getReturnType();
+        // get the method name and retrieve the corresponding setter
+        final String methodName = method.getName();
+        if (returnType != boolean.class
+                && !methodName.startsWith("get")) {
+            final String errMsg = String.format("you put %s annotation "
+                    + "on method which is not a getter: %s."
+                    + " Use this annotation on getter since the "
+                    + "name will be extracted "
+                    + "to get the corresponding setter."
+                    + " (JavaBean convention)",
+                    Parameter.class.getSimpleName(), methodName);
+            throw new IllegalArgumentException(errMsg);
+        }
+        // check the prefix of the 'getter' method
+        final String prefixMethod;
+        if (returnType == boolean.class) {
+            prefixMethod = "is";
+        } else {
+            prefixMethod = "get";
+        }
+
+        // construct the setter name
+        final String setterMethodName = "set"
+                + methodName.substring(methodName.indexOf(prefixMethod)
+                        + prefixMethod.length(), methodName.length());
+
+        // get the setter method
+        final Method setterMethod = this.getMethodByReflection(bean,
+                setterMethodName, returnType);
+
+        // retrieve parameter informations
+        final Parameter annotation = method
+                .getAnnotation(Parameter.class);
+        final String argName = annotation.name();
+        final int position = annotation.position();
+        final boolean required = annotation.required();
+
+        try {
+            if (returnType == String.class) {
+                final String value;
+                if (position != MissingParameterException.NO_POSITION) {
+                    value = this.getParameterString(
+                            argName, position, required);
+                } else {
+                    value = this.getNamedString(argName);
+                }
+                setterMethod.invoke(bean, value);
+            } else if (returnType == int.class) {
+                final int value;
+                if (position != MissingParameterException.NO_POSITION) {
+                    value = this.getParameterInt(
+                            argName, position, required);
+                } else {
+                    value = this.getNamedInt(argName);
+                }
+                setterMethod.invoke(bean, Integer.valueOf(value));
+
+            } else if (returnType == long.class) {
+                final long value;
+                if (position != MissingParameterException.NO_POSITION) {
+                    value = this.getParameterLong(
+                            argName, position, required);
+                } else {
+                    value = this.getNamedLong(argName);
+                }
+                setterMethod.invoke(bean, Long.valueOf(value));
+
+            } else if (returnType == float.class) {
+                final float value;
+                if (position != MissingParameterException.NO_POSITION) {
+                    value = this.getParameterFloat(
+                            argName, position, required);
+                } else {
+                    value = this.getNamedFloat(argName);
+                }
+                setterMethod.invoke(bean, Float.valueOf(value));
+
+            } else if (returnType == double.class) {
+                final double value;
+                if (position != MissingParameterException.NO_POSITION) {
+                    value = this.getParameterDouble(
+                           argName, position, required);
+                } else {
+                    value = this.getNamedDouble(argName);
+                }
+                setterMethod.invoke(bean, Double.valueOf(value));
+            }
+
+        } catch (IllegalAccessException e) {
+            final String errMsg = String.format(
+                    "Tried to invoke %s by reflection "
+                            + "but got IllegalAccessException",
+                            setterMethodName);
+            System.err.println(errMsg);
+            e.printStackTrace();
+            System.exit(1);
+        } catch (IllegalArgumentException e) {
+            final String errMsg = String.format(
+                    "Tried to invoke %s by reflection "
+                            + "but got IllegalArgumentException,"
+                            + " seems that the return type of getter "
+                            + "and setter do not match.",
+                    setterMethodName);
+            System.err.println(errMsg);
+            e.printStackTrace();
+            System.exit(1);
+        } catch (InvocationTargetException e) {
+            final String errMsg = String.format(
+                    "Tried to invoke %s by reflection "
+                            + "but got InvocationTargetException",
+                    setterMethodName);
+            System.err.println(errMsg);
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Helper to fetch a method by reflection.<br>
+     * If the method can not be fetched the program will print an error message
+     * an stop.
+     *
+     * @param object
+     *            object to search on
+     * @param name
+     *            name of the method
+     * @param parameterType
+     *            parameter type
+     * @return the method
+     */
+    private Method getMethodByReflection(final Object object, final String name,
+            final Class<?> parameterType) {
+        // get the setter method
+        Method method = null;
+        try {
+            method = object.getClass()
+                    .getMethod(name, parameterType);
+        } catch (NoSuchMethodException e) {
+            final String errMsg = String.format(
+                    "Expected Setter method %s missing."
+                          + "\nPlease implement for each getter the "
+                          + "corresponding setter!(JavaBeanConvention)",
+                          name);
+            System.err.println(errMsg);
+            e.printStackTrace();
+            System.exit(1);
+        } catch (SecurityException e) {
+            System.err.println("Tried to get the method by reflection "
+                    + "and got missing access permission!");
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        return method;
     }
 
     // ********************************************************************
