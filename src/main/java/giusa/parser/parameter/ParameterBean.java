@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ***************************************************************************/
-package giusa.software.parser.parameter;
+package giusa.parser.parameter;
 
 /**
  * Simple marker interface. Implementors will be used to extract names for

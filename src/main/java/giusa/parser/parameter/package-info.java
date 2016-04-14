@@ -15,10 +15,10 @@
  ***************************************************************************/
 /**
  * Package contains all stuff needed for the
- * {@link giusa.software.parser.parameter.ParameterParser}.
+ * {@link giusa.parser.parameter.ParameterParser}.
  *
  * @author Alessandro Giusa, alessandrogiusa@gmail.com
  * @version 1.0
  *
  */
-package giusa.software.parser.parameter;
+package giusa.parser.parameter;

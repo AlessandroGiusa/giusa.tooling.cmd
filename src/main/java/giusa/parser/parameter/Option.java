@@ -1,4 +1,4 @@
-package giusa.software.parser.parameter;
+package giusa.parser.parameter;
 
 import static java.lang.annotation.ElementType.METHOD;
 
