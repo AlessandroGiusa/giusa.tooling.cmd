@@ -18,7 +18,9 @@ package giusa.software.parser.parameter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This parser will parse arguments passed by the command line. It can parse
@@ -78,16 +80,27 @@ public final class ParameterParser {
      * {@link #PREFIX_UNNAMED_PARAMETER}.
      */
     private final Map<String, String> parameter;
+
+    /**
+     * options.
+     */
+    private final Set<String> options;
+
     /** current state. */
     private ParameterParserState state = ParameterParser.INIT_STATE;
+
     /** counter of unnamed parameter. */
     private int counterUnnamedParameter = 0;
+
+    /**switch to set that options have to be parsed.*/
+    private boolean parseOptions = true;
 
     /**
      * Create a ParameterParser object.
      */
     public ParameterParser() {
         this.parameter = new HashMap<String, String>();
+        this.options = new HashSet<>();
     }
 
     /**
@@ -97,6 +110,22 @@ public final class ParameterParser {
      */
     public int getCountUnnamedParameter() {
         return this.counterUnnamedParameter;
+    }
+
+    /**
+     * Get the state of options being parsed.
+     * @return true if options are parsed
+     */
+    public boolean isParseOptions() {
+        return this.parseOptions;
+    }
+
+    /**
+     * Set the state of options being parsed.
+     * @param doParseOptions true if options have to be parsed
+     */
+    public void setParseOptions(final boolean doParseOptions) {
+        this.parseOptions = doParseOptions;
     }
 
     /**
@@ -145,6 +174,14 @@ public final class ParameterParser {
     }
 
     /**
+     * Get the internal set of options.
+     * @return set of options
+     */
+    Set<String> getOptions() {
+        return this.options;
+    }
+
+    /**
      * Add an unnamed parameter.
      *
      * @param value
@@ -172,9 +209,27 @@ public final class ParameterParser {
         this.parameter.put(key, value);
     }
 
+    /**
+     * Add an option.
+     * @param name name of option
+     */
+    void addOption(final String name) {
+        this.options.add(name);
+    }
+
     // *****************************************************************
     // CONVENIENT GETTER
     // *****************************************************************
+
+    /**
+     * Check if there is an option. Pass also the dash i.e. -f or --names or
+     * something.
+     * @param name name with the dash symbol
+     * @return true if the option is available
+     */
+    public boolean hasOption(final String name) {
+        return this.options.contains(name);
+    }
 
     /**
      * Get the parameter either by the name or by its position.
@@ -882,18 +937,34 @@ public final class ParameterParser {
                             + ParameterParser.SEPARATOR_KEY_VALUE.length(),
                             next.length());
                     this.value = ParameterParser.removeQuotas(this.value);
-                    this.flush(parser);
+                    this.flushParameter(parser);
                 } else {
-                    this.name = next.substring(next.indexOf(this.dashType)
-                            + this.dashType.length(), next.length());
+                    if (parser.isParseOptions()) {
+                        this.name = next;
+                        this.flushOption(parser);
+                    } else {
+                        this.name = next.substring(next.indexOf(this.dashType)
+                                + this.dashType.length(), next.length());
+                    }
                 }
 
             } else {
                 this.value = next;
                 this.value = ParameterParser.removeQuotas(this.value);
-                this.flush(parser);
+                this.flushParameter(parser);
             }
             return retVal;
+        }
+
+        /**
+         * Flush name the captured option.
+         * @param parser parser instance
+         */
+        private void flushOption(final ParameterParser parser) {
+            parser.addOption(this.name);
+            parser.setState(ParameterParser.INIT_STATE);
+            this.name = null;
+            this.value = null;
         }
 
         /**
@@ -902,7 +973,7 @@ public final class ParameterParser {
          * @param parser
          *            parser instance
          */
-        private void flush(final ParameterParser parser) {
+        private void flushParameter(final ParameterParser parser) {
             parser.addNamedParameter(this.name, this.value);
             parser.setState(ParameterParser.INIT_STATE);
             this.name = null;

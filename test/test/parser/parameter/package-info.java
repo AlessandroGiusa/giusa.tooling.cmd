@@ -14,11 +14,10 @@
  * limitations under the License.
  ***************************************************************************/
 /**
- * Package contains all stuff needed for the
- * {@link giusa.software.parser.parameter.ParameterParser}.
- *
+ * Contains all test cases for
+ * {@link giusa.software.parser.parameter} package.
  * @author Alessandro Giusa, alessandrogiusa@gmail.com
  * @version 1.0
  *
  */
-package giusa.software.parser.parameter;
+package test.parser.parameter;
