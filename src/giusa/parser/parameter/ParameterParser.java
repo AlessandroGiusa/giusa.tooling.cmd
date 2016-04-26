@@ -100,7 +100,7 @@ public final class ParameterParser {
      */
     public ParameterParser() {
         this.parameter = new HashMap<String, String>();
-        this.options = new HashSet<>();
+        this.options = new HashSet<String>();
     }
 
     /**
