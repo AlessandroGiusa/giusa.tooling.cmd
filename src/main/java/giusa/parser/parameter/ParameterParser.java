@@ -96,11 +96,21 @@ public final class ParameterParser {
     private boolean parseOptions = true;
 
     /**
-     * Create a ParameterParser object.
+     * Create a ParameterParser object. Use {@link #parse(String[])} in order to parse.
      */
     public ParameterParser() {
         this.parameter = new HashMap<String, String>();
         this.options = new HashSet<String>();
+    }
+    
+    /**
+     * Create ParameterParser object and parse the given args already.
+     * @param args args to parse
+     */
+    public ParameterParser(final String[] args) {
+    	this.parameter = new HashMap<String, String>();
+        this.options = new HashSet<String>();
+        this.parse(args);
     }
 
     /**
