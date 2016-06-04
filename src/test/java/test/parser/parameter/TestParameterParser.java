@@ -189,5 +189,23 @@ public final class TestParameterParser {
         Assert.assertEquals("C:\\DevTools", bean.getPath());
         Assert.assertEquals(45, bean.getTimeout());
     }
+    
+    @Test
+    public void testGetParameterBeanClass()
+            throws MissingParameterException {
+        String[] args = new String[] {
+                "--path=\"C:\\DevTools\"",
+                "-g",
+                "--timeout=45"
+        };
+
+        final ParameterParser parser = new ParameterParser();
+        parser.parse(args);
+        final TestBeanClass bean = parser.getParameter(TestBeanClass.class);
+
+        Assert.assertFalse(bean.isForced());
+        Assert.assertEquals("C:\\DevTools", bean.getPath());
+        Assert.assertEquals(45, bean.getTimeout());
+    }
 
 }

@@ -454,6 +454,28 @@ public final class ParameterParser {
             }
         }
     }
+    
+    /**
+     * @see #getParameter(ParameterBean)
+     * @param beanClass class which should be used to instantiate bean class
+     * @return instance with parameter set
+     * @throws MissingParameterException if some required parameter are missing
+     */
+    public <T extends ParameterBean> T getParameter(final Class<? extends ParameterBean> beanClass)
+    		throws MissingParameterException {
+    	try {
+			@SuppressWarnings("unchecked")
+			final T bean = (T) beanClass.newInstance();
+			this.getParameter(bean);
+			return bean;
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		return null;
+    }
+    
 
     /**
      * Helper to process the {@link Option} annotation type.
