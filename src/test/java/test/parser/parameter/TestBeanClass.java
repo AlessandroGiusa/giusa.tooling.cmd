@@ -46,7 +46,7 @@ public final class TestBeanClass implements ParameterBean {
      * Device name.
      * @return device name
      */
-    @Parameter(name = "device", required = false)
+    @Parameter(name = "device", required = true)
     //TODO if a parameter is not required it can not be over position!
     public String getDevice() {
         return this.device;

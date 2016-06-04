@@ -258,11 +258,7 @@ public final class ParameterParser {
                     name, String.valueOf(pos));
         } else {
             if (required) {
-                final String errorMessage = String.format(
-                        "the argument %s does neither exist as "
-                                + "named argument nor in position %s.",
-                                    name,
-                                    String.valueOf(pos));
+            	final String errorMessage = this.getErrorMessageMissingParameter(name, pos);
                 throw new MissingParameterException(name, pos, errorMessage);
             }
             value = null;
@@ -297,11 +293,7 @@ public final class ParameterParser {
                     name, String.valueOf(pos));
         } else {
             if (required) {
-                final String errorMessage = String.format(
-                        "the argument %s does neither exist as "
-                                + "named argument nor in position %s.",
-                                name,
-                                String.valueOf(pos));
+            	final String errorMessage = this.getErrorMessageMissingParameter(name, pos);
                 throw new MissingParameterException(name, pos, errorMessage);
             }
             value = 0;
@@ -336,11 +328,7 @@ public final class ParameterParser {
                     name, String.valueOf(pos));
         } else {
             if (required) {
-                final String errorMessage = String.format(
-                        "the argument %s does neither exist as "
-                                + "named argument nor in position %s.",
-                                name,
-                                String.valueOf(pos));
+            	final String errorMessage = this.getErrorMessageMissingParameter(name, pos);
                 throw new MissingParameterException(name, pos, errorMessage);
             }
             value = 0L;
@@ -375,11 +363,7 @@ public final class ParameterParser {
                     name, String.valueOf(pos));
         } else {
             if (required) {
-                final String errorMessage = String.format(
-                        "the argument %s does neither exist as "
-                                + "named argument nor in position %s.",
-                                name,
-                                String.valueOf(pos));
+            	final String errorMessage = this.getErrorMessageMissingParameter(name, pos);
                 throw new MissingParameterException(name, pos, errorMessage);
             }
             value = 0f;
@@ -414,16 +398,34 @@ public final class ParameterParser {
                     name, String.valueOf(pos));
         } else {
             if (required) {
-                final String errorMessage = String.format(
-                        "the argument %s does neither exist as "
-                                + "named argument nor in position %s.",
-                                name,
-                                String.valueOf(pos));
+                final String errorMessage = this.getErrorMessageMissingParameter(name, pos);
                 throw new MissingParameterException(name, pos, errorMessage);
             }
             value = 0d;
         }
         return value;
+    }
+    
+    /**
+     * Create the error message for missing arguments.
+     * @param name name of argument
+     * @param expectedPosition expected position
+     * @return string with error message
+     */
+    private String getErrorMessageMissingParameter(final String name, final int expectedPosition) {
+    	final String errorMessage;
+    	if (expectedPosition < 0) {
+    		errorMessage = String.format(
+                    "required argument %s not does not exist!",
+                            name);
+    	} else {
+    		errorMessage = String.format(
+                    "required argument %s does neither exist as "
+                            + "named argument nor in position %s.",
+                            name,
+                            String.valueOf(expectedPosition));
+    	}
+    	return errorMessage;
     }
 
     // *****************************************************************
@@ -577,52 +579,28 @@ public final class ParameterParser {
 
         try {
             if (returnType == String.class) {
-                final String value;
-                if (position != MissingParameterException.NO_POSITION) {
-                    value = this.getParameterString(
-                            argName, position, required);
-                } else {
-                    value = this.getNamedString(argName);
-                }
+                final String value = this.getParameterString(
+                        argName, position, required);
                 setterMethod.invoke(bean, value);
+                
             } else if (returnType == int.class) {
-                final int value;
-                if (position != MissingParameterException.NO_POSITION) {
-                    value = this.getParameterInt(
-                            argName, position, required);
-                } else {
-                    value = this.getNamedInt(argName);
-                }
+                final int value = this.getParameterInt(
+                        argName, position, required);
                 setterMethod.invoke(bean, Integer.valueOf(value));
 
             } else if (returnType == long.class) {
-                final long value;
-                if (position != MissingParameterException.NO_POSITION) {
-                    value = this.getParameterLong(
-                            argName, position, required);
-                } else {
-                    value = this.getNamedLong(argName);
-                }
+                final long value = this.getParameterLong(
+                        argName, position, required);
                 setterMethod.invoke(bean, Long.valueOf(value));
 
             } else if (returnType == float.class) {
-                final float value;
-                if (position != MissingParameterException.NO_POSITION) {
-                    value = this.getParameterFloat(
-                            argName, position, required);
-                } else {
-                    value = this.getNamedFloat(argName);
-                }
+                final float value = this.getParameterFloat(
+                        argName, position, required);
                 setterMethod.invoke(bean, Float.valueOf(value));
 
             } else if (returnType == double.class) {
-                final double value;
-                if (position != MissingParameterException.NO_POSITION) {
-                    value = this.getParameterDouble(
-                           argName, position, required);
-                } else {
-                    value = this.getNamedDouble(argName);
-                }
+                final double value = this.getParameterDouble(
+                        argName, position, required);
                 setterMethod.invoke(bean, Double.valueOf(value));
             }
 
@@ -718,6 +696,9 @@ public final class ParameterParser {
      * @return true if present
      */
     public boolean contains(final int pos) {
+    	if (pos < 0) {
+			return false;
+		}
         final String key = ParameterParser.PREFIX_UNNAMED_PARAMETER + pos;
         return this.contains(key);
     }
