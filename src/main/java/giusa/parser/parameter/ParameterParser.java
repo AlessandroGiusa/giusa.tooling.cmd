@@ -204,7 +204,7 @@ public final class ParameterParser {
     void addNamedParameter(final String key, final String value) {
         if (this.parameter.containsKey(key)) {
             throw new IllegalArgumentException(
-                    String.format("parameter %s already set", key));
+                    String.format("parameter ''%s'' already set", key));
         }
         this.parameter.put(key, value);
     }
@@ -254,7 +254,7 @@ public final class ParameterParser {
             value = this.getNamedString(name);
         } else if (this.contains(pos)) {
             value = this.getUnnamedString(pos);
-            System.out.printf("read argument %s from %s.slot",
+            System.out.printf("read argument '%s' from '%s'.slot",
                     name, String.valueOf(pos));
         } else {
             if (required) {
@@ -289,7 +289,7 @@ public final class ParameterParser {
             value = this.getNamedInt(name);
         } else if (this.contains(pos)) {
             value = this.getUnnamedInt(pos);
-            System.out.printf("read argument %s from %s.slot",
+            System.out.printf("read argument '%s' from '%s'.slot",
                     name, String.valueOf(pos));
         } else {
             if (required) {
@@ -324,7 +324,7 @@ public final class ParameterParser {
             value = this.getNamedLong(name);
         } else if (this.contains(pos)) {
             value = this.getUnnamedLong(pos);
-            System.out.printf("read argument %s from %s.slot",
+            System.out.printf("read argument '%s' from '%s'.slot",
                     name, String.valueOf(pos));
         } else {
             if (required) {
@@ -359,7 +359,7 @@ public final class ParameterParser {
             value = this.getNamedFloat(name);
         } else if (this.contains(pos)) {
             value = this.getUnnamedFloat(pos);
-            System.out.printf("read argument %s from %s.slot",
+            System.out.printf("read argument '%s' from '%s'.slot",
                     name, String.valueOf(pos));
         } else {
             if (required) {
@@ -394,7 +394,7 @@ public final class ParameterParser {
             value = this.getNamedDouble(name);
         } else if (this.contains(pos)) {
             value = this.getUnnamedDouble(pos);
-            System.out.printf("read argument %s from %s.slot",
+            System.out.printf("read argument '%s' from '%s'.slot",
                     name, String.valueOf(pos));
         } else {
             if (required) {
@@ -416,12 +416,12 @@ public final class ParameterParser {
     	final String errorMessage;
     	if (expectedPosition < 0) {
     		errorMessage = String.format(
-                    "required argument %s not does not exist!",
+                    "required argument '%s' does not exist!",
                             name);
     	} else {
     		errorMessage = String.format(
-                    "required argument %s does neither exist as "
-                            + "named argument nor in position %s.",
+                    "required argument '%s' does neither exist as "
+                            + "named argument nor in position '%s'.",
                             name,
                             String.valueOf(expectedPosition));
     	}
@@ -471,7 +471,7 @@ public final class ParameterParser {
         final Class<?> returnType = method.getReturnType();
         if (returnType != boolean.class) {
             final String errMsg = String.format("wrong return "
-                    + "type on %s. It should be boolean type",
+                    + "type on '%s'. It should be boolean type",
                     method.getName());
             throw new IllegalArgumentException(errMsg);
         }
@@ -495,7 +495,7 @@ public final class ParameterParser {
             setterMethod.invoke(bean, Boolean.valueOf(optionIsPresent));
         } catch (IllegalAccessException e) {
             final String errMsg = String.format(
-                    "Tried to invoke %s by reflection "
+                    "Tried to invoke '%s' by reflection "
                             + "but got IllegalAccessException",
                             setterMethodName);
             System.err.println(errMsg);
@@ -503,7 +503,7 @@ public final class ParameterParser {
             System.exit(1);
         } catch (IllegalArgumentException e) {
             final String errMsg = String.format(
-                    "Tried to invoke %s by reflection "
+                    "Tried to invoke '%s' by reflection "
                             + "but got IllegalArgumentException,"
                             + " seems that the return type of getter "
                             + "and setter do not match.",
@@ -513,7 +513,7 @@ public final class ParameterParser {
             System.exit(1);
         } catch (InvocationTargetException e) {
             final String errMsg = String.format(
-                    "Tried to invoke %s by reflection "
+                    "Tried to invoke '%s' by reflection "
                             + "but got InvocationTargetException",
                     setterMethodName);
             System.err.println(errMsg);
@@ -535,8 +535,8 @@ public final class ParameterParser {
         final String methodName = method.getName();
         if (returnType != boolean.class
                 && !methodName.startsWith("get")) {
-            final String errMsg = String.format("you put %s annotation "
-                    + "on method which is not a getter: %s."
+            final String errMsg = String.format("you put '%s' annotation "
+                    + "on method which is not a getter: '%s'."
                     + " Use this annotation on getter since the "
                     + "name will be extracted "
                     + "to get the corresponding setter."
@@ -569,8 +569,8 @@ public final class ParameterParser {
         final boolean required = annotation.required();
 
         if (!required && position >= 0) {
-            final String errMsg = String.format("the method %s has "
-                    + "an parameter %s which is not required but has a position"
+            final String errMsg = String.format("the method '%s' has "
+                    + "an parameter '%s' which is not required but has a position"
                     + " attached. This is illegal state, since a not required"
                     + " parameter can not be parsed over position.",
                             methodName, argName);
@@ -606,7 +606,7 @@ public final class ParameterParser {
 
         } catch (IllegalAccessException e) {
             final String errMsg = String.format(
-                    "Tried to invoke %s by reflection "
+                    "Tried to invoke '%s' by reflection "
                             + "but got IllegalAccessException",
                             setterMethodName);
             System.err.println(errMsg);
@@ -614,7 +614,7 @@ public final class ParameterParser {
             System.exit(1);
         } catch (IllegalArgumentException e) {
             final String errMsg = String.format(
-                    "Tried to invoke %s by reflection "
+                    "Tried to invoke '%s' by reflection "
                             + "but got IllegalArgumentException,"
                             + " seems that the return type of getter "
                             + "and setter do not match.",
@@ -624,7 +624,7 @@ public final class ParameterParser {
             System.exit(1);
         } catch (InvocationTargetException e) {
             final String errMsg = String.format(
-                    "Tried to invoke %s by reflection "
+                    "Tried to invoke '%s' by reflection "
                             + "but got InvocationTargetException",
                     setterMethodName);
             System.err.println(errMsg);
@@ -655,7 +655,7 @@ public final class ParameterParser {
                     .getMethod(name, parameterType);
         } catch (NoSuchMethodException e) {
             final String errMsg = String.format(
-                    "Expected Setter method %s missing."
+                    "Expected Setter method '%s' missing."
                           + "\nPlease implement for each getter the "
                           + "corresponding setter!(JavaBeanConvention)",
                           name);
@@ -719,7 +719,7 @@ public final class ParameterParser {
     public long getNamedLong(final String key) {
         if (!this.parameter.containsKey(key)) {
             throw new IllegalArgumentException(String.format(
-                    "argument with name %s not passed", key));
+                    "argument with name '%s' not passed", key));
         }
         return Long.parseLong(this.parameter.get(key));
     }
@@ -736,7 +736,7 @@ public final class ParameterParser {
     public int getNamedInt(final String key) {
         if (!this.parameter.containsKey(key)) {
             throw new IllegalArgumentException(String.format(
-                    "argument with name %s not passed", key));
+                    "argument with name '%s' not passed", key));
         }
         return Integer.parseInt(this.parameter.get(key));
     }
@@ -753,7 +753,7 @@ public final class ParameterParser {
     public double getNamedDouble(final String key) {
         if (!this.parameter.containsKey(key)) {
             throw new IllegalArgumentException(String.format(
-                    "argument with name %s not passed", key));
+                    "argument with name '%s' not passed", key));
         }
         return Double.parseDouble(this.parameter.get(key));
     }
@@ -770,7 +770,7 @@ public final class ParameterParser {
     public float getNamedFloat(final String key) {
         if (!this.parameter.containsKey(key)) {
             throw new IllegalArgumentException(String.format(
-                    "argument with name %s not passed", key));
+                    "argument with name '%s' not passed", key));
         }
         return Float.parseFloat(this.parameter.get(key));
     }
@@ -787,7 +787,7 @@ public final class ParameterParser {
     public boolean getNamedBoolean(final String key) {
         if (!this.parameter.containsKey(key)) {
             throw new IllegalArgumentException(String.format(
-                    "argument with name %s not passed", key));
+                    "argument with name '%s' not passed", key));
         }
         return Boolean.parseBoolean(this.parameter.get(key));
     }
@@ -804,7 +804,7 @@ public final class ParameterParser {
     public String getNamedString(final String key) {
         if (!this.parameter.containsKey(key)) {
             throw new IllegalArgumentException(String.format(
-                    "argument with name %s not passed", key));
+                    "argument with name '%s' not passed", key));
         }
         return this.parameter.get(key);
     }
