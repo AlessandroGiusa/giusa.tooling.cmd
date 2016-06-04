@@ -4,6 +4,16 @@ repositories {
     mavenCentral()
 }
 
+sourceCompatibility = 1.6
+version = '1.1'
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'GiusaSoftware ParameterParser',
+                   'Implementation-Version': version
+    }
+}
+
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
 }
