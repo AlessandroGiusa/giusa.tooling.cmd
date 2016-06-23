@@ -417,6 +417,41 @@ public final class ParameterParser {
     }
     
     /**
+     * Get the parameter either by the name or by its position.
+     *
+     * @param name
+     *            name of the parameter. Do not use dash or other, just the name
+     * @param pos
+     *            position like 0 or 1 or other integer.
+     * @param required
+     *            true if the parameter is absolute required. If true and
+     *            parameter does not exist, the runtime exception below is
+     *            thrown. If false and parameter does not exist <b>0</b> is
+     *            returned.
+     * @throws MissingParameterException
+     *             if parameter required and not existent
+     * @return the value of the parameter
+     */
+    public boolean getParameterBoolean(final String name, final int pos,
+            final boolean required) throws MissingParameterException {
+        final boolean value;
+        if (this.contains(name)) {
+            value = this.getNamedBoolean(name);
+        } else if (this.contains(pos)) {
+            value = this.getUnnamedBoolean(pos);
+            System.out.printf("read argument '%s' from '%s'.slot",
+                    name, String.valueOf(pos));
+        } else {
+            if (required) {
+                final String errorMessage = this.getErrorMessageMissingParameter(name, pos);
+                throw new MissingParameterException(name, pos, errorMessage);
+            }
+            value = false;
+        }
+        return value;
+    }
+    
+    /**
      * Create the error message for missing arguments.
      * @param name name of argument
      * @param expectedPosition expected position
@@ -634,6 +669,10 @@ public final class ParameterParser {
                 final double value = this.getParameterDouble(
                         argName, position, required);
                 setterMethod.invoke(bean, Double.valueOf(value));
+            } else if (returnType == boolean.class) {
+            	final boolean value = this.getParameterBoolean(
+            			argName, position, required);
+            	setterMethod.invoke(bean, Boolean.valueOf(value));
             }
 
         } catch (IllegalAccessException e) {
